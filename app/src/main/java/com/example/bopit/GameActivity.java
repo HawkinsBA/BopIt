@@ -13,7 +13,7 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void initComponents() {
-        ImageView moveImage = findViewById(R.id.moveImageView);
+       // ImageView moveImage = findViewById(R.id.moveImageView);
         
     }
 }
