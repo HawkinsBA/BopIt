@@ -24,6 +24,7 @@ public class GameActivity extends AppCompatActivity {
         initAccelerometer();
     }
 
+
     private void initUIComponents() {
         Log.d(TAG, "initUIComponents: Initializing UI components.");
         ImageView moveImage = findViewById(R.id.moveImageView);
@@ -51,5 +52,6 @@ public class GameActivity extends AppCompatActivity {
         Log.d(TAG, "initAccelerometer: Initializing accelerometer.");
         SensorManager sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         Sensor accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+
     }
 }
