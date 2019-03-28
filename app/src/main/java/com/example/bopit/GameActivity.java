@@ -38,9 +38,9 @@ public class GameActivity extends AppCompatActivity {
         ArrayList<String> moveSequence = new ArrayList<>();
     }
 
-    //TODO: Change this depending on how difficulty selection is packaged.
     private double processDifficulty() {
-        String difficulty = ""; //TODO: Package difficulty selection and handle it, difficulty = "" is a placeholder.
+        Bundle extras = getIntent().getExtras();
+        String difficulty = extras.getString("DIFFICULTY");
         Log.d(TAG, "processDifficulty: Setting game difficulty to " + difficulty + ".");
         if (difficulty.equals("Easy")) return 4.0;
         else if (difficulty.equals("Medium")) return 3.0;
