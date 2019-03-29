@@ -6,21 +6,28 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.RadioButton;
-import android.widget.RadioGroup;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
     private final static String TAG = "MainActivity";
     private String difficulty;
+    private TextView diffDisplay;
     private Button start;
     private Button setDifficulty;
     private Button diffSelectionButton;//rename so it's not redundant
     private AlertDialog difficultySelection;
     private View mView;
     private RadioButton easy, medium, hard;
-    private RadioGroup difficulties;
+    private ListView highScoreView;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,26 +37,26 @@ public class MainActivity extends AppCompatActivity {
         initDifficultySelect();
         initUI();
         initOnClickListeners();
-
-
     }
-
-    private void openGameActivity() {
-        Log.d(TAG,"openGameActivity: Opening game activity");
-        Intent intent = new Intent(this, GameActivity.class);
-        intent.putExtra("DIFFICULTY",difficulty);
-        startActivity(intent);
+    private void initDifficultySelect (){
+        mView = getLayoutInflater().inflate(R.layout.dialog_difficulty_selection, null);
+        AlertDialog.Builder mBuilder = new AlertDialog.Builder(MainActivity.this);
+        mBuilder.setView(mView);
+        difficultySelection = mBuilder.create();
     }
 
     private void initUI(){
         Log.d(TAG,"initUI: initializing UI components");
+        diffDisplay = findViewById(R.id.diffDisplay);
+        displayDiff();
         start = findViewById(R.id.start);
         setDifficulty = findViewById(R.id.difficulty);
-        difficulties = mView.findViewById(R.id.difficulties);
         easy = mView.findViewById(R.id.easy);
         medium = mView.findViewById(R.id.medium);
         hard = mView.findViewById(R.id.hard);
         diffSelectionButton = mView.findViewById(R.id.difficultySelectButton);
+        highScoreView = findViewById(R.id.highScoreView);
+        loadHighScores();
     }
     private void initOnClickListeners(){
         start.setOnClickListener(new View.OnClickListener() {
@@ -71,6 +78,7 @@ public class MainActivity extends AppCompatActivity {
                 }else if(hard.isChecked()){
                     difficulty = "Hard";
                 }
+                displayDiff();
                 difficultySelection.dismiss();
                 Toast.makeText(getApplicationContext(),"Difficulty set to "+difficulty+"!",Toast.LENGTH_SHORT).show();
                 Log.d(TAG,"diffSelectionButton onClick: Changed difficulty to: "+ difficulty);
@@ -78,12 +86,21 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void initDifficultySelect (){
-        mView = getLayoutInflater().inflate(R.layout.dialog_difficulty_selection, null);
-        AlertDialog.Builder mBuilder = new AlertDialog.Builder(MainActivity.this);
-        mBuilder.setView(mView);
-         difficultySelection = mBuilder.create();
-
+    private void openGameActivity() {
+        Log.d(TAG,"openGameActivity: Opening game activity");
+        Intent intent = new Intent(this, GameActivity.class);
+        intent.putExtra("DIFFICULTY",difficulty);
+        startActivity(intent);
     }
-
+    private void displayDiff(){
+        diffDisplay.setText("Difficulty: "+ difficulty);
+    }
+    private void loadHighScores(){
+        Log.d(TAG,"loadHighScores: initializing highscores listview");
+        ArrayList<String> listItems=new ArrayList();
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_list_item_1,
+                listItems);
+        adapter.add("Working");
+    }
 }
