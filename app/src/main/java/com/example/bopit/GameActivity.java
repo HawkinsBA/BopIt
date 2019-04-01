@@ -7,10 +7,11 @@ import android.os.CountDownTimer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Chronometer;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.example.moves.*;
 
 import java.util.ArrayList;
 
@@ -22,7 +23,7 @@ public class GameActivity extends AppCompatActivity {
     CountDownTimer timer;
     int points;
     double nextMoveDelay;
-    ArrayList<String> moveSequence;
+    ArrayList<Object> movesList;
     Sensor accelerometer;
 
     @Override
@@ -48,7 +49,7 @@ public class GameActivity extends AppCompatActivity {
         Log.d(TAG, "initGameComponents: Initializing game components.");
         points = 0;
         nextMoveDelay = processDifficulty();
-        moveSequence = new ArrayList<>();
+        initMovesList();
     }
 
     private double processDifficulty() {
@@ -84,9 +85,19 @@ public class GameActivity extends AppCompatActivity {
         timer.start();
     }
 
-    //TODO: Figure out how to represent moves. Right now I'm leaning towards procedurally (each move is a data structure).
-    //Reasoning behind procedural implementation -> Never going to make more moves but might want to add functions to the moves
-    //we have represented.
-    //Might want to meet with Dr. Ferrer to ask about this.
-    //Does that create too much code replication?
+    public void initMovesList() {
+        movesList = new ArrayList<>();
+        Up up = new Up();
+        Down down = new Down();
+        Left left = new Left();
+        Right right = new Right();
+        Twist twist = new Twist();
+        movesList.add(up);
+        movesList.add(down);
+        movesList.add(left);
+        movesList.add(right);
+        movesList.add(twist);
+    }
+
+    //TODO: String field for all moves w/ filepath for move icon.
 }
