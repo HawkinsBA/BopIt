@@ -14,6 +14,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private final static String TAG = "MainActivity";
@@ -21,19 +23,21 @@ public class MainActivity extends AppCompatActivity {
     private TextView diffDisplay;
     private Button start;
     private Button setDifficulty;
-    private Button diffSelectionButton;//rename so it's not redundant
+    private Button diffSelectionButton;
     private AlertDialog difficultySelection;
     private View mView;
     private RadioButton easy, medium, hard;
     private ListView highScoreView;
-
+    DataManager manager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+         manager = new DataManager(getFilesDir());
         difficulty="Easy";
+        loadDefaultScores();
         initDifficultySelect();
         initUI();
         initOnClickListeners();
@@ -43,6 +47,15 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog.Builder mBuilder = new AlertDialog.Builder(MainActivity.this);
         mBuilder.setView(mView);
         difficultySelection = mBuilder.create();
+    }
+    private void loadDefaultScores(){
+        try {
+            manager.saveScore(new Score("Default #1", 500));
+            manager.saveScore(new Score("Default #2", 350));
+            manager.saveScore(new Score("Default #3", 100));
+        }catch(Exception e){
+            ModalDialogs.notifyException(this,e);
+        }
     }
 
     private void initUI(){
@@ -96,11 +109,28 @@ public class MainActivity extends AppCompatActivity {
         diffDisplay.setText("Difficulty: "+ difficulty);
     }
     private void loadHighScores(){
+
+
         Log.d(TAG,"loadHighScores: initializing highscores listview");
-        ArrayList<String> listItems=new ArrayList();
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_list_item_1,
-                listItems);
-        adapter.add("Working");
+        try {
+            ArrayList<Score> scores = manager.loadAllScores();
+            final ArrayList<String> scoreDisp = scoreArrToStringArr(scores);
+            initListComponents(scoreDisp);
+        }catch(Exception e){
+            ModalDialogs.notifyException(MainActivity.this,e);
+        }
+    }
+    private ArrayList<String> scoreArrToStringArr(ArrayList<Score> arr){
+        ArrayList<String> newArr = new ArrayList<>();
+        for (Score s:arr) {
+            newArr.add(s.dispScore());
+        }
+        return newArr;
+    }
+    private void initListComponents(ArrayList<String> arr){
+        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>
+                (this, android.R.layout.simple_list_item_1, arr);
+
+        highScoreView.setAdapter(arrayAdapter);
     }
 }
