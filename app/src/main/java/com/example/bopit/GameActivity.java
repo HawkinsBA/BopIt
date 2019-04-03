@@ -2,6 +2,8 @@ package com.example.bopit;
 
 import android.content.Context;
 import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.CountDownTimer;
 import android.support.v7.app.AppCompatActivity;
@@ -11,9 +13,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.moves.*;
-
 import java.util.ArrayList;
+import java.util.Random;
 
 public class GameActivity extends AppCompatActivity {
     private final static String TAG = "GameActivity";
@@ -22,9 +23,12 @@ public class GameActivity extends AppCompatActivity {
     TextView timerText;
     CountDownTimer timer;
     int points;
-    double nextMoveDelay;
-    ArrayList<Object> movesList;
+    double nextMoveDelay, previousX, previousY, previousZ;
+    ArrayList<Move> movesList;
     Sensor accelerometer;
+    SensorManager sensorManager;
+    Random rand;
+    Move move;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +53,7 @@ public class GameActivity extends AppCompatActivity {
         Log.d(TAG, "initGameComponents: Initializing game components.");
         points = 0;
         nextMoveDelay = processDifficulty();
+        rand = new Random();
         initMovesList();
     }
 
@@ -63,7 +68,7 @@ public class GameActivity extends AppCompatActivity {
 
     private void initAccelerometer() {
         Log.d(TAG, "initAccelerometer: Initializing accelerometer.");
-        SensorManager sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
     }
 
@@ -78,20 +83,19 @@ public class GameActivity extends AppCompatActivity {
 
             @Override
             public void onFinish() {
-                Log.d(TAG, "timer.onFinish(): Starting the game.");
-                Toast.makeText(GameActivity.this, "Game should start now.", Toast.LENGTH_SHORT).show();
+                play();
             }
         };
         timer.start();
     }
 
-    public void initMovesList() {
+    private void initMovesList() {
         movesList = new ArrayList<>();
-        Up up = new Up();
-        Down down = new Down();
-        Left left = new Left();
-        Right right = new Right();
-        Twist twist = new Twist();
+        Move up = new Move("Up", 3.0, 1.0);
+        Move down = new Move("Down", -3.0, 1.0);
+        Move left = new Move("Left", 4.0, 2.0);
+        Move right = new Move("Right", -4.0, 2.0);
+        Move twist = new Move("Twist", 8.0, 2.0);
         movesList.add(up);
         movesList.add(down);
         movesList.add(left);
@@ -99,5 +103,87 @@ public class GameActivity extends AppCompatActivity {
         movesList.add(twist);
     }
 
-    //TODO: String field for all moves w/ filepath for move icon.
+    private void play() {
+        timer = new CountDownTimer(4000, 1000) {
+            @Override
+            public void onTick(long millisUntilFinish) {
+                Integer secUntilFinish = (int) (millisUntilFinish / 1000);
+                timerText.setText(secUntilFinish.toString());
+            }
+
+            @Override
+            public void onFinish() {
+                showGameOverDialog();
+            }
+        };
+
+        move = initMove();
+        final double successThreshold = move.getSuccessThreshold();
+        final double acceptableDeviationMargin = move.getAcceptableDeviationMargin();
+
+        sensorManager.registerListener(new SensorEventListener() {
+            @Override
+            public void onSensorChanged(SensorEvent sensorEvent) {
+                if(move.getName().equals("Up")) {
+                    if(sensorEvent.values[1] - previousY >= successThreshold) {
+                        processSuccess();
+                    }else if(sensorEvent.values[0] > acceptableDeviationMargin || sensorEvent.values[2] > acceptableDeviationMargin) {
+                        showGameOverDialog();
+                    }else{
+                        previousY = sensorEvent.values[1];
+                    }
+                }else if(move.getName().equals("Down")){
+                    if(sensorEvent.values[1] - previousY <= successThreshold) {
+                        processSuccess();
+                    }else if(sensorEvent.values[0] > acceptableDeviationMargin || sensorEvent.values[2] > acceptableDeviationMargin) {
+                        showGameOverDialog();
+                    }else{
+                        previousY = sensorEvent.values[1];
+                    }
+                }else if(move.getName().equals("Left")){
+                    if(sensorEvent.values[0] - previousX >= successThreshold) {
+                        processSuccess();
+                    }else if(sensorEvent.values[1] > acceptableDeviationMargin || sensorEvent.values[2] > acceptableDeviationMargin) {
+                        showGameOverDialog();
+                    }else{
+                        previousX = sensorEvent.values[0];
+                    }
+                }else if(move.getName().equals("Right")){
+                    if(sensorEvent.values[0] - previousX <= successThreshold) {
+                        processSuccess();
+                    }else if(sensorEvent.values[1] > acceptableDeviationMargin || sensorEvent.values[2] > acceptableDeviationMargin) {
+                        showGameOverDialog();
+                    }else{
+                        previousX = sensorEvent.values[0];
+                    }
+                }else if(move.getName().equals("Twist")){
+                    if(sensorEvent.values[2] - previousZ <= successThreshold) {
+                        processSuccess();
+                    }else if(sensorEvent.values[1] > acceptableDeviationMargin || sensorEvent.values[0] > acceptableDeviationMargin) {
+                        showGameOverDialog();
+                    }else{
+                        previousZ = sensorEvent.values[2];
+                    }
+                }
+            }
+
+            @Override
+            public void onAccuracyChanged(Sensor sensor, int i) {}
+        }, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+    }
+
+
+
+    private Move initMove() {
+        move = movesList.get(rand.nextInt(5));
+        moveName.setText(move.getName());
+        return move;
+    }
+
+    private void showGameOverDialog() {
+    }
+
+    private void processSuccess() {
+        points++;
+    }
 }
