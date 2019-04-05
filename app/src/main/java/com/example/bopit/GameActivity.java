@@ -6,9 +6,11 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.CountDownTimer;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -90,6 +92,7 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void initMovesList() {
+        Log.d(TAG, "initMovesList: Creating moves and adding them to movesList.");
         movesList = new ArrayList<>();
         Move up = new Move("Up", 3.0, 1.0);
         Move down = new Move("Down", -3.0, 1.0);
@@ -104,15 +107,18 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void play() {
+        Log.d(TAG, "play: New round started.");
         timer = new CountDownTimer(4000, 1000) {
             @Override
             public void onTick(long millisUntilFinish) {
+                Log.d(TAG, "onTick: Updating timerText.");
                 Integer secUntilFinish = (int) (millisUntilFinish / 1000);
                 timerText.setText(secUntilFinish.toString());
             }
 
             @Override
             public void onFinish() {
+                Log.d(TAG, "onFinish: Game over.");
                 showGameOverDialog();
             }
         };
@@ -126,9 +132,12 @@ public class GameActivity extends AppCompatActivity {
             public void onSensorChanged(SensorEvent sensorEvent) {
                 if(move.getName().equals("Up")) {
                     if(sensorEvent.values[1] - previousY >= successThreshold) {
+                        Log.d(TAG, "onSensorChanged: UP success.");
                         processSuccess();
                     }else if(sensorEvent.values[0] > acceptableDeviationMargin || sensorEvent.values[2] > acceptableDeviationMargin) {
+                        Log.d(TAG, "onSensorChanged: UP acceptable deviation exceeded.");
                         showGameOverDialog();
+                        sensorManager.unregisterListener(this);
                     }else{
                         previousY = sensorEvent.values[1];
                     }
@@ -137,6 +146,7 @@ public class GameActivity extends AppCompatActivity {
                         processSuccess();
                     }else if(sensorEvent.values[0] > acceptableDeviationMargin || sensorEvent.values[2] > acceptableDeviationMargin) {
                         showGameOverDialog();
+                        sensorManager.unregisterListener(this);
                     }else{
                         previousY = sensorEvent.values[1];
                     }
@@ -145,6 +155,7 @@ public class GameActivity extends AppCompatActivity {
                         processSuccess();
                     }else if(sensorEvent.values[1] > acceptableDeviationMargin || sensorEvent.values[2] > acceptableDeviationMargin) {
                         showGameOverDialog();
+                        sensorManager.unregisterListener(this);
                     }else{
                         previousX = sensorEvent.values[0];
                     }
@@ -153,6 +164,7 @@ public class GameActivity extends AppCompatActivity {
                         processSuccess();
                     }else if(sensorEvent.values[1] > acceptableDeviationMargin || sensorEvent.values[2] > acceptableDeviationMargin) {
                         showGameOverDialog();
+                        sensorManager.unregisterListener(this);
                     }else{
                         previousX = sensorEvent.values[0];
                     }
@@ -161,6 +173,7 @@ public class GameActivity extends AppCompatActivity {
                         processSuccess();
                     }else if(sensorEvent.values[1] > acceptableDeviationMargin || sensorEvent.values[0] > acceptableDeviationMargin) {
                         showGameOverDialog();
+                        sensorManager.unregisterListener(this);
                     }else{
                         previousZ = sensorEvent.values[2];
                     }
@@ -172,8 +185,6 @@ public class GameActivity extends AppCompatActivity {
         }, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
-
-
     private Move initMove() {
         move = movesList.get(rand.nextInt(5));
         moveName.setText(move.getName());
@@ -181,6 +192,12 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void showGameOverDialog() {
+        Log.d(TAG, "showGameOverDialog: Showing game over dialog.");
+        View mView = getLayoutInflater().inflate(R.layout.dialog_game_over, null);
+        AlertDialog.Builder mBuilder = new AlertDialog.Builder(GameActivity.this);
+        mBuilder.setView(mView);
+        AlertDialog gameOver = mBuilder.create();
+        gameOver.show();
     }
 
     private void processSuccess() {
