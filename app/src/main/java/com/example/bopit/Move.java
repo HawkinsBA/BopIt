@@ -21,4 +21,5 @@ public class Move {
     public double getAcceptableDeviationMargin() {
         return acceptableDeviationMargin;
     }
+
 }

@@ -94,7 +94,6 @@ public class MainActivity extends AppCompatActivity {
                 displayDiff();
                 difficultySelection.dismiss();
                 Toast.makeText(getApplicationContext(),"Difficulty set to "+difficulty+"!",Toast.LENGTH_SHORT).show();
-                Log.d(TAG,"diffSelectionButton onClick: Changed difficulty to: "+ difficulty);
             }
         });
     }

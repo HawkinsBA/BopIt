@@ -1,6 +1,7 @@
 package com.example.bopit;
 
 import android.content.Context;
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -11,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,6 +25,7 @@ public class GameActivity extends AppCompatActivity {
     ImageView moveImage;
     TextView moveName;
     TextView timerText;
+    TextView score;
     CountDownTimer timer;
     int points;
     double nextMoveDelay, previousX, previousY, previousZ;
@@ -49,6 +52,8 @@ public class GameActivity extends AppCompatActivity {
         moveImage = findViewById(R.id.moveImageView);
         moveName = findViewById(R.id.moveNameView);
         timerText = findViewById(R.id.moveTimeView);
+        score = findViewById(R.id.score);
+
     }
 
     private void initGameComponents() {
@@ -56,6 +61,7 @@ public class GameActivity extends AppCompatActivity {
         points = 0;
         nextMoveDelay = processDifficulty();
         rand = new Random();
+
         initMovesList();
     }
 
@@ -122,8 +128,9 @@ public class GameActivity extends AppCompatActivity {
                 showGameOverDialog();
             }
         };
-
+        timer.start();
         move = initMove();
+
         final double successThreshold = move.getSuccessThreshold();
         final double acceptableDeviationMargin = move.getAcceptableDeviationMargin();
 
@@ -202,5 +209,23 @@ public class GameActivity extends AppCompatActivity {
 
     private void processSuccess() {
         points++;
+        score.setText(""+points);
+        play();
+    }
+    TextView scoreView;
+    Button finish;
+    private AlertDialog buildDialog(int resource){
+        View mView = getLayoutInflater().inflate(resource,null);
+        AlertDialog.Builder mBuilder = new AlertDialog.Builder(GameActivity.this);
+        mBuilder.setView(mView);
+        scoreView.setText(points);
+        finish.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
+
+        return mBuilder.create();
     }
 }
