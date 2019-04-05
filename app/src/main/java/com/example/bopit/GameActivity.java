@@ -1,6 +1,7 @@
 package com.example.bopit;
 
 import android.content.Context;
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -9,8 +10,10 @@ import android.os.CountDownTimer;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Layout;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -21,11 +24,11 @@ import java.util.Random;
 public class GameActivity extends AppCompatActivity {
     private final static String TAG = "GameActivity";
     ImageView moveImage;
-    TextView moveName;
-    TextView timerText;
+    TextView moveName, timerText, scoreView;
+    Button finish;
     CountDownTimer timer;
-    int points;
-    double nextMoveDelay, previousX, previousY, previousZ;
+    int points = 0;
+    double nextMoveDelay;
     ArrayList<Move> movesList;
     Sensor accelerometer;
     SensorManager sensorManager;
@@ -49,6 +52,10 @@ public class GameActivity extends AppCompatActivity {
         moveImage = findViewById(R.id.moveImageView);
         moveName = findViewById(R.id.moveNameView);
         timerText = findViewById(R.id.moveTimeView);
+
+        View mView = getLayoutInflater().inflate(R.layout.dialog_game_over, null);
+        finish = mView.findViewById(R.id.finish);
+        scoreView = mView.findViewById(R.id.scoreView);
     }
 
     private void initGameComponents() {
@@ -94,13 +101,9 @@ public class GameActivity extends AppCompatActivity {
     private void initMovesList() {
         Log.d(TAG, "initMovesList: Creating moves and adding them to movesList.");
         movesList = new ArrayList<>();
-        Move up = new Move("Up", 3.0, 1.0);
-        Move down = new Move("Down", -3.0, 1.0);
-        Move left = new Move("Left", 4.0, 2.0);
-        Move right = new Move("Right", -4.0, 2.0);
-        Move twist = new Move("Twist", 8.0, 2.0);
-        movesList.add(up);
-        movesList.add(down);
+        Move left = new Move("Left", 18.0, 10.0);
+        Move right = new Move("Right", -18.0, 10.0);
+        Move twist = new Move("Twist", 10.0, 5.0);
         movesList.add(left);
         movesList.add(right);
         movesList.add(twist);
@@ -122,6 +125,7 @@ public class GameActivity extends AppCompatActivity {
                 showGameOverDialog();
             }
         };
+        timer.start();
 
         move = initMove();
         final double successThreshold = move.getSuccessThreshold();
@@ -130,52 +134,41 @@ public class GameActivity extends AppCompatActivity {
         sensorManager.registerListener(new SensorEventListener() {
             @Override
             public void onSensorChanged(SensorEvent sensorEvent) {
-                if(move.getName().equals("Up")) {
-                    if(sensorEvent.values[1] - previousY >= successThreshold) {
-                        Log.d(TAG, "onSensorChanged: UP success.");
+                if(move.getName().equals("Left")){
+                    if(sensorEvent.values[0] >= successThreshold) {
+                        Log.d(TAG, "onSensorChanged: Made correct move (left).");
                         processSuccess();
-                    }else if(sensorEvent.values[0] > acceptableDeviationMargin || sensorEvent.values[2] > acceptableDeviationMargin) {
-                        Log.d(TAG, "onSensorChanged: UP acceptable deviation exceeded.");
+                        timer.cancel();
+                    }else if(sensorEvent.values[2] > acceptableDeviationMargin
+                            || sensorEvent.values[0] < (0 - acceptableDeviationMargin)) {
+                        Log.d(TAG, "onSensorChanged: Made incorrect move (left).");
                         showGameOverDialog();
                         sensorManager.unregisterListener(this);
-                    }else{
-                        previousY = sensorEvent.values[1];
-                    }
-                }else if(move.getName().equals("Down")){
-                    if(sensorEvent.values[1] - previousY <= successThreshold) {
-                        processSuccess();
-                    }else if(sensorEvent.values[0] > acceptableDeviationMargin || sensorEvent.values[2] > acceptableDeviationMargin) {
-                        showGameOverDialog();
-                        sensorManager.unregisterListener(this);
-                    }else{
-                        previousY = sensorEvent.values[1];
-                    }
-                }else if(move.getName().equals("Left")){
-                    if(sensorEvent.values[0] - previousX >= successThreshold) {
-                        processSuccess();
-                    }else if(sensorEvent.values[1] > acceptableDeviationMargin || sensorEvent.values[2] > acceptableDeviationMargin) {
-                        showGameOverDialog();
-                        sensorManager.unregisterListener(this);
-                    }else{
-                        previousX = sensorEvent.values[0];
+                        timer.cancel();
                     }
                 }else if(move.getName().equals("Right")){
-                    if(sensorEvent.values[0] - previousX <= successThreshold) {
+                    if(sensorEvent.values[0] <= successThreshold) {
+                        Log.d(TAG, "onSensorChanged: Made correct move (right).");
                         processSuccess();
-                    }else if(sensorEvent.values[1] > acceptableDeviationMargin || sensorEvent.values[2] > acceptableDeviationMargin) {
+                        timer.cancel();
+                    }else if(sensorEvent.values[2] > acceptableDeviationMargin
+                            || sensorEvent.values[0] > (0 + acceptableDeviationMargin)) {
+                        Log.d(TAG, "onSensorChanged: Made incorrect move (right).");
                         showGameOverDialog();
                         sensorManager.unregisterListener(this);
-                    }else{
-                        previousX = sensorEvent.values[0];
+                        timer.cancel();
                     }
                 }else if(move.getName().equals("Twist")){
-                    if(sensorEvent.values[2] - previousZ <= successThreshold) {
+                    if(sensorEvent.values[2] >= successThreshold) {
+                        Log.d(TAG, "onSensorChanged: Made correct move (twist).");
                         processSuccess();
-                    }else if(sensorEvent.values[1] > acceptableDeviationMargin || sensorEvent.values[0] > acceptableDeviationMargin) {
+                        timer.cancel();
+                    }else if(sensorEvent.values[0] > (0 + acceptableDeviationMargin)
+                            || sensorEvent.values[0] < (0 - acceptableDeviationMargin)) {
+                        Log.d(TAG, "onSensorChanged: Made incorrect move (twist).");
                         showGameOverDialog();
                         sensorManager.unregisterListener(this);
-                    }else{
-                        previousZ = sensorEvent.values[2];
+                        timer.cancel();
                     }
                 }
             }
@@ -186,21 +179,36 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private Move initMove() {
-        move = movesList.get(rand.nextInt(5));
+        move = movesList.get(rand.nextInt(3));
         moveName.setText(move.getName());
         return move;
     }
 
-    private void showGameOverDialog() {
-        Log.d(TAG, "showGameOverDialog: Showing game over dialog.");
+    private AlertDialog buildGameOverDialog(){
+        Log.d(TAG, "buildDialog: Building game over dialog.");
         View mView = getLayoutInflater().inflate(R.layout.dialog_game_over, null);
         AlertDialog.Builder mBuilder = new AlertDialog.Builder(GameActivity.this);
         mBuilder.setView(mView);
-        AlertDialog gameOver = mBuilder.create();
+        scoreView.setText("" + points);
+        finish.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(TAG, "onClick: Finish pressed.");
+                finish();
+            }
+        });
+        Log.d(TAG, "buildDialog: Setting scoreView to " + points + ".");
+                return mBuilder.create();
+    }
+
+    private void showGameOverDialog() {
+        Log.d(TAG, "showGameOverDialog: Showing game over dialog.");
+        AlertDialog gameOver = buildGameOverDialog();
         gameOver.show();
     }
 
     private void processSuccess() {
+        Log.d(TAG, "processSuccess: Adding point and reinitializing.");
         points++;
     }
 }
