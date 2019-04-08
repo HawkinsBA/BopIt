@@ -53,12 +53,6 @@ public class GameActivity extends AppCompatActivity {
         moveImage = findViewById(R.id.moveImageView);
         moveName = findViewById(R.id.moveNameView);
         timerText = findViewById(R.id.moveTimeView);
-
-
-        View mView = getLayoutInflater().inflate(R.layout.dialog_game_over, null);
-        finish = mView.findViewById(R.id.finish);
-        scoreView = mView.findViewById(R.id.scoreView);
-
     }
 
     private void initGameComponents() {
@@ -195,7 +189,9 @@ public class GameActivity extends AppCompatActivity {
         View mView = getLayoutInflater().inflate(R.layout.dialog_game_over, null);
         AlertDialog.Builder mBuilder = new AlertDialog.Builder(GameActivity.this);
         mBuilder.setView(mView);
-        scoreView.setText("" + points);
+        finish = mView.findViewById(R.id.finish);
+        scoreView = mView.findViewById(R.id.scoreView);
+        scoreView.setText("Score: " + points);
         finish.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
