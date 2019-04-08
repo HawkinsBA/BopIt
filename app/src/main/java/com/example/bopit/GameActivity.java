@@ -15,6 +15,7 @@ import android.text.Layout;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -37,6 +38,7 @@ public class GameActivity extends AppCompatActivity {
     SensorManager sensorManager;
     Random rand;
     Move move;
+    EditText playerName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +57,7 @@ public class GameActivity extends AppCompatActivity {
         moveImage = findViewById(R.id.moveImageView);
         moveName = findViewById(R.id.moveNameView);
         timerText = findViewById(R.id.moveTimeView);
+
     }
 
     private void initGameComponents() {
@@ -176,6 +179,7 @@ public class GameActivity extends AppCompatActivity {
         View mView = getLayoutInflater().inflate(R.layout.dialog_game_over, null);
         AlertDialog.Builder mBuilder = new AlertDialog.Builder(GameActivity.this);
         mBuilder.setView(mView);
+        playerName = mView.findViewById(R.id.playerName);
         finish = mView.findViewById(R.id.finish);
         scoreView = mView.findViewById(R.id.scoreView);
         scoreView.setText("Score: " + points);
@@ -220,7 +224,7 @@ public class GameActivity extends AppCompatActivity {
 
     private void saveScore() throws IOException {
         DataManager manager= new DataManager(getFilesDir());
-        manager.saveScore(new Score("your name",points));
+        manager.saveScore(new Score(playerName.getText().toString(),points));
         Log.d(TAG,"score is "+points);
     }
 
