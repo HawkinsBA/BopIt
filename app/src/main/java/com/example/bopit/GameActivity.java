@@ -16,10 +16,12 @@ import android.text.Layout;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -37,6 +39,7 @@ public class GameActivity extends AppCompatActivity {
     SensorManager sensorManager;
     Random rand;
     Move move;
+    EditText playerName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +58,7 @@ public class GameActivity extends AppCompatActivity {
         moveImage = findViewById(R.id.moveImageView);
         moveName = findViewById(R.id.moveNameView);
         timerText = findViewById(R.id.moveTimeView);
+
     }
 
     private void initGameComponents() {
@@ -101,9 +105,9 @@ public class GameActivity extends AppCompatActivity {
     private void initMovesList() {
         Log.d(TAG, "initMovesList: Creating moves and adding them to movesList.");
         movesList = new ArrayList<>();
-        Move left = new Move("Left", 18.0, 10.0);
-        Move right = new Move("Right", -18.0, 10.0);
-        Move twist = new Move("Twist", 10.0, 5.0);
+        Move left = new Move("Left", 11.0, 10.0);
+        Move right = new Move("Right", -11.0, 10.0);
+        Move twist = new Move("Twist", 12.0, 5.0);
         movesList.add(left);
         movesList.add(right);
         movesList.add(twist);
@@ -111,7 +115,7 @@ public class GameActivity extends AppCompatActivity {
 
     private void play() {
         Log.d(TAG, "play: New round started.");
-        long moveSpeed = (long)processDifficulty();
+        long moveSpeed = (long)nextMoveDelay;
 
         timer = new CountDownTimer(moveSpeed * 1000, 1000) {
             @Override
@@ -131,7 +135,7 @@ public class GameActivity extends AppCompatActivity {
         move = initMove();
 
         final double successThreshold = move.getSuccessThreshold();
-        final double acceptableDeviationMargin = move.getAcceptableDeviationMargin();
+
 
         sensorManager.registerListener(new SensorEventListener() {
             @Override
@@ -139,23 +143,22 @@ public class GameActivity extends AppCompatActivity {
                 if(move.getName().equals("Left")){
                     if(sensorEvent.values[0] >= successThreshold) {
                         Log.d(TAG, "onSensorChanged: Made correct move (left).");
-                        timer.cancel();
                         sensorManager.unregisterListener(this);
+                        timer.cancel();
                         processSuccess();
                     }
                 }else if(move.getName().equals("Right")){
                     if(sensorEvent.values[0] <= successThreshold) {
                         Log.d(TAG, "onSensorChanged: Made correct move (right).");
-                        timer.cancel();
                         sensorManager.unregisterListener(this);
+                        timer.cancel();
                         processSuccess();
-
                     }
                 }else if(move.getName().equals("Twist")){
                     if(sensorEvent.values[2] >= successThreshold) {
                         Log.d(TAG, "onSensorChanged: Made correct move (twist).");
-                        timer.cancel();
                         sensorManager.unregisterListener(this);
+                        timer.cancel();
                         processSuccess();
                     }
                 }
@@ -177,6 +180,7 @@ public class GameActivity extends AppCompatActivity {
         View mView = getLayoutInflater().inflate(R.layout.dialog_game_over, null);
         AlertDialog.Builder mBuilder = new AlertDialog.Builder(GameActivity.this);
         mBuilder.setView(mView);
+        playerName = mView.findViewById(R.id.playerName);
         finish = mView.findViewById(R.id.finish);
         scoreView = mView.findViewById(R.id.scoreView);
         scoreView.setText("Score: " + points);
@@ -184,6 +188,14 @@ public class GameActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Log.d(TAG, "onClick: Finish pressed.");
+
+                try {
+                    if(points>0)
+                    saveScore();
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 finish();
             }
         });
@@ -209,4 +221,11 @@ public class GameActivity extends AppCompatActivity {
         }, 500);
 
     }
+
+    private void saveScore() throws IOException {
+        DataManager manager= new DataManager(getFilesDir());
+        manager.saveScore(new Score(playerName.getText().toString(),points));
+        Log.d(TAG,"score is "+points);
+    }
+
 }
