@@ -115,7 +115,9 @@ public class GameActivity extends AppCompatActivity {
 
     private void play() {
         Log.d(TAG, "play: New round started.");
-        timer = new CountDownTimer(4000, 1000) {
+        long moveSpeed = (long)processDifficulty();
+
+        timer = new CountDownTimer(moveSpeed * 1000, 1000) {
             @Override
             public void onTick(long millisUntilFinish) {
                 Log.d(TAG, "onTick: Updating timerText.");
