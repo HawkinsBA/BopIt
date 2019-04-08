@@ -1,5 +1,6 @@
 package com.example.bopit;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -106,7 +107,7 @@ public class GameActivity extends AppCompatActivity {
         Log.d(TAG, "initMovesList: Creating moves and adding them to movesList.");
         movesList = new ArrayList<>();
         Move left = new Move("Left", 11.0, 10.0);
-        Move right = new Move("Right", -11.0, 10.0);
+        Move right = new Move("Right", -8.0, 10.0);
         Move twist = new Move("Twist", 12.0, 5.0);
         movesList.add(left);
         movesList.add(right);
@@ -206,7 +207,10 @@ public class GameActivity extends AppCompatActivity {
     private void showGameOverDialog() {
         Log.d(TAG, "showGameOverDialog: Showing game over dialog.");
         AlertDialog gameOver = buildGameOverDialog();
-        gameOver.show();
+        if (!(GameActivity.this).isFinishing()) {
+            gameOver.show();
+        }
+        //gameOver.show();
     }
 
     private void processSuccess() {
