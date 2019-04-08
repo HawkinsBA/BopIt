@@ -19,12 +19,14 @@ class DataManager {
          }
 
      }
+
      public void saveScore(Score p) throws IOException {
          File output = new File(saveDirScore, p.getName()+p.getScore());
          PrintWriter pw = new PrintWriter(new FileWriter(output));
          pw.println(p.toString());
          pw.close();
      }
+
      public Score openScore(String name) throws IOException {
          return openScore(new File(saveDirScore, name));
      }
@@ -39,6 +41,7 @@ class DataManager {
             return null;
         }
     }
+
     public ArrayList<Score> loadAllScores() throws IOException {
         ArrayList<Score> result = new ArrayList<>();
         for(File f: saveDirScore.listFiles()){
@@ -50,6 +53,7 @@ class DataManager {
         }
         return result;
     }
+
     public void removeAllScores(){
         for(File f: saveDirScore.listFiles()) {
             if (f.isFile()) {
@@ -57,5 +61,4 @@ class DataManager {
             }
         }
     }
-
 }
