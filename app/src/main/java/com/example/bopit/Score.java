@@ -26,7 +26,7 @@ public class Score {
     }
 
     public boolean isHighscore(){
-        //
+
         return false;
     }
 }

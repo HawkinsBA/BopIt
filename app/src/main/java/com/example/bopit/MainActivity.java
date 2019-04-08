@@ -28,7 +28,8 @@ public class MainActivity extends AppCompatActivity {
     private View mView;
     private RadioButton easy, medium, hard;
     private ListView highScoreView;
-    DataManager manager;
+    private DataManager manager;
+    private Button resetScores;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,17 +43,27 @@ public class MainActivity extends AppCompatActivity {
         initUI();
         initOnClickListeners();
     }
+    @Override
+    protected void onRestart(){
+        super.onRestart();
+        setContentView(R.layout.activity_main);
+        loadDefaultScores();
+        initDifficultySelect();
+        initUI();
+        initOnClickListeners();
+    }
     private void initDifficultySelect (){
         mView = getLayoutInflater().inflate(R.layout.dialog_difficulty_selection, null);
         AlertDialog.Builder mBuilder = new AlertDialog.Builder(MainActivity.this);
         mBuilder.setView(mView);
         difficultySelection = mBuilder.create();
     }
+
     private void loadDefaultScores(){
         try {
-            manager.saveScore(new Score("Default #1", 500));
-            manager.saveScore(new Score("Default #2", 350));
-            manager.saveScore(new Score("Default #3", 100));
+            manager.saveScore(new Score("Default #1", 50));
+            manager.saveScore(new Score("Default #2", 35));
+            manager.saveScore(new Score("Default #3", 10));
         }catch(Exception e){
             ModalDialogs.notifyException(this,e);
         }
@@ -69,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
         hard = mView.findViewById(R.id.hard);
         diffSelectionButton = mView.findViewById(R.id.difficultySelectButton);
         highScoreView = findViewById(R.id.highScoreView);
+        resetScores = findViewById(R.id.resetScores);
         loadHighScores();
     }
     private void initOnClickListeners(){
@@ -94,6 +106,12 @@ public class MainActivity extends AppCompatActivity {
                 displayDiff();
                 difficultySelection.dismiss();
                 Toast.makeText(getApplicationContext(),"Difficulty set to "+difficulty+"!",Toast.LENGTH_SHORT).show();
+            }
+        });
+        resetScores.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                manager.removeAllScores();
+                onRestart();
             }
         });
     }
