@@ -59,6 +59,7 @@ public class GameActivity extends AppCompatActivity {
     private void initGameComponents() {
         Log.d(TAG, "initGameComponents: Initializing game components.");
         points = 0;
+        successCount = 0;
         nextMoveDelay = processDifficulty();
         rand = new Random();
 
