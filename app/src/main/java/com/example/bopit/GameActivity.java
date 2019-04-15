@@ -1,9 +1,6 @@
 package com.example.bopit;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
-import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -13,14 +10,12 @@ import android.os.Handler;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.Layout;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -29,11 +24,10 @@ import java.util.Random;
 public class GameActivity extends AppCompatActivity {
     private final static String TAG = "GameActivity";
     ImageView moveImage;
-
     TextView moveName, timerText, scoreView;
     Button finish;
     CountDownTimer timer;
-    int points = 0;
+    int points, successCount;
     double nextMoveDelay;
     ArrayList<Move> movesList;
     Sensor accelerometer;
@@ -107,7 +101,7 @@ public class GameActivity extends AppCompatActivity {
         Log.d(TAG, "initMovesList: Creating moves and adding them to movesList.");
         movesList = new ArrayList<>();
         Move left = new Move("Left", 11.0, 10.0);
-        Move right = new Move("Right", -8.0, 10.0);
+        Move right = new Move("Right", -10.0, 10.0);
         Move twist = new Move("Twist", 12.0, 5.0);
         movesList.add(left);
         movesList.add(right);
@@ -116,9 +110,8 @@ public class GameActivity extends AppCompatActivity {
 
     private void play() {
         Log.d(TAG, "play: New round started.");
-        long moveSpeed = (long)nextMoveDelay;
 
-        timer = new CountDownTimer(moveSpeed * 1000, 1000) {
+        timer = new CountDownTimer((long) (nextMoveDelay * 1000), 1000) {
             @Override
             public void onTick(long millisUntilFinish) {
                 Log.d(TAG, "onTick: Updating timerText.");
@@ -133,10 +126,9 @@ public class GameActivity extends AppCompatActivity {
             }
         };
         timer.start();
+
         move = initMove();
-
         final double successThreshold = move.getSuccessThreshold();
-
 
         sensorManager.registerListener(new SensorEventListener() {
             @Override
@@ -189,7 +181,6 @@ public class GameActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Log.d(TAG, "onClick: Finish pressed.");
-
                 try {
                     if(points>0)
                     saveScore();
@@ -200,8 +191,7 @@ public class GameActivity extends AppCompatActivity {
                 finish();
             }
         });
-        Log.d(TAG, "buildDialog: Setting scoreView to " + points + ".");
-                return mBuilder.create();
+        return mBuilder.create();
     }
 
     private void showGameOverDialog() {
@@ -215,6 +205,12 @@ public class GameActivity extends AppCompatActivity {
 
     private void processSuccess() {
         Log.d(TAG, "processSuccess: Adding point and reinitializing.");
+        if (successCount == 10) {
+            nextMoveDelay -= 0.2;
+            successCount = 0;
+        } else {
+            successCount++;
+        }
         points++;
         final Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
@@ -231,5 +227,4 @@ public class GameActivity extends AppCompatActivity {
         manager.saveScore(new Score(playerName.getText().toString(),points));
         Log.d(TAG,"score is "+points);
     }
-
 }
