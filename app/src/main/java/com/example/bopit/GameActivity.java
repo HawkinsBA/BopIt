@@ -164,7 +164,7 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private Move initMove() {
-        move = movesList.get(rand.nextInt(3));
+        move = movesList.get(rand.nextInt(movesList.size()));
         moveName.setText(move.getName());
         return move;
     }
@@ -183,7 +183,7 @@ public class GameActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Log.d(TAG, "onClick: Finish pressed.");
                 try {
-                    if(points>0)
+                    if(points > 0)
                     saveScore();
 
                 } catch (IOException e) {
@@ -201,7 +201,6 @@ public class GameActivity extends AppCompatActivity {
         if (!(GameActivity.this).isFinishing()) {
             gameOver.show();
         }
-        //gameOver.show();
     }
 
     private void processSuccess() {
