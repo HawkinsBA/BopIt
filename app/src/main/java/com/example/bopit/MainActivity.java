@@ -1,6 +1,7 @@
 package com.example.bopit;
 
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -35,16 +36,16 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-         manager = new DataManager(getFilesDir());
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        manager = new DataManager(getFilesDir());
         difficulty="Easy";
-        loadDefaultScores();
         initDifficultySelect();
         initUI();
         initOnClickListeners();
     }
+
     @Override
-    protected void onRestart(){
+    protected void onRestart() {
         super.onRestart();
         setContentView(R.layout.activity_main);
         loadDefaultScores();
@@ -52,14 +53,15 @@ public class MainActivity extends AppCompatActivity {
         initUI();
         initOnClickListeners();
     }
-    private void initDifficultySelect (){
+
+    private void initDifficultySelect() {
         mView = getLayoutInflater().inflate(R.layout.dialog_difficulty_selection, null);
         AlertDialog.Builder mBuilder = new AlertDialog.Builder(MainActivity.this);
         mBuilder.setView(mView);
         difficultySelection = mBuilder.create();
     }
 
-    private void loadDefaultScores(){
+    private void loadDefaultScores() {
         try {
             manager.saveScore(new Score("Default #1", 50));
             manager.saveScore(new Score("Default #2", 35));
@@ -69,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void initUI(){
+    private void initUI() {
         Log.d(TAG,"initUI: initializing UI components");
         diffDisplay = findViewById(R.id.diffDisplay);
         displayDiff();
@@ -81,8 +83,8 @@ public class MainActivity extends AppCompatActivity {
         diffSelectionButton = mView.findViewById(R.id.difficultySelectButton);
         highScoreView = findViewById(R.id.highScoreView);
         resetScores = findViewById(R.id.resetScores);
-        loadHighScores();
     }
+
     private void initOnClickListeners(){
         start.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -122,13 +124,12 @@ public class MainActivity extends AppCompatActivity {
         intent.putExtra("DIFFICULTY",difficulty);
         startActivity(intent);
     }
-    private void displayDiff(){
+
+    private void displayDiff() {
         diffDisplay.setText("Difficulty: "+ difficulty);
     }
-    private void loadHighScores(){
 
-
-        Log.d(TAG,"loadHighScores: initializing highscores listview");
+    private void loadHighScores() {
         try {
             ArrayList<Score> scores = manager.loadAllScores();
             final ArrayList<String> scoreDisp = scoreArrToStringArr(scores);
@@ -137,17 +138,17 @@ public class MainActivity extends AppCompatActivity {
             ModalDialogs.notifyException(MainActivity.this,e);
         }
     }
-    private ArrayList<String> scoreArrToStringArr(ArrayList<Score> arr){
+
+    private ArrayList<String> scoreArrToStringArr(ArrayList<Score> arr) {
         ArrayList<String> newArr = new ArrayList<>();
         for (Score s:arr) {
             newArr.add(s.dispScore());
         }
         return newArr;
     }
-    private void initListComponents(ArrayList<String> arr){
-        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>
-                (this, android.R.layout.simple_list_item_1, arr);
 
+    private void initListComponents(ArrayList<String> arr) {
+        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, arr);
         highScoreView.setAdapter(arrayAdapter);
     }
 }

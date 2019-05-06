@@ -1,17 +1,8 @@
 package com.example.bopit;
 
-import android.os.Handler;
-import android.util.Log;
-
 import org.junit.Test;
-
 import static org.junit.Assert.*;
 
-/**
- * Example local unit test, which will execute on the development machine (host).
- *
- * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
- */
 public class GameActivityTests {
     private int successCount;
     private double nextMoveDelay;
@@ -47,5 +38,4 @@ public class GameActivityTests {
         assertEquals(1.0, nextMoveDelay, 0.0);
         assertEquals(1, points);
     }
-
 }

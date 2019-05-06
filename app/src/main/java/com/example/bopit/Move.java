@@ -2,12 +2,11 @@ package com.example.bopit;
 
 public class Move {
     private String name;
-    private double successThreshold, acceptableDeviationMargin;
+    private double successThreshold;
 
-    Move(String name, double successThreshold, double acceptableDeviationMargin) {
+    Move(String name, double successThreshold) {
         this.name = name;
         this.successThreshold = successThreshold;
-        this.acceptableDeviationMargin = acceptableDeviationMargin;
     }
 
     public String getName() {
@@ -17,9 +16,4 @@ public class Move {
     public double getSuccessThreshold() {
         return successThreshold;
     }
-
-    public double getAcceptableDeviationMargin() {
-        return acceptableDeviationMargin;
-    }
-
 }

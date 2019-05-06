@@ -12,12 +12,11 @@ class DataManager {
 
     private static final String PLACE_DIR = "places";
 
-     public DataManager(File saveDir){
+     public DataManager(File saveDir) {
          this.saveDirScore = new File(saveDir, PLACE_DIR);
          if (!saveDirScore.exists()) {
              saveDirScore.mkdir();
          }
-
      }
 
      public void saveScore(Score p) throws IOException {
@@ -25,10 +24,6 @@ class DataManager {
          PrintWriter pw = new PrintWriter(new FileWriter(output));
          pw.println(p.toString());
          pw.close();
-     }
-
-     public Score openScore(String name) throws IOException {
-         return openScore(new File(saveDirScore, name));
      }
 
      public Score openScore(File input) throws IOException {

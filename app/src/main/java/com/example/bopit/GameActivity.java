@@ -1,6 +1,7 @@
 package com.example.bopit;
 
 import android.content.Context;
+import android.content.pm.ActivityInfo;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -40,7 +41,7 @@ public class GameActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
-
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         initUIComponents();
         initGameComponents();
         initAccelerometer();
@@ -101,9 +102,9 @@ public class GameActivity extends AppCompatActivity {
     private void initMovesList() {
         Log.d(TAG, "initMovesList: Creating moves and adding them to movesList.");
         movesList = new ArrayList<>();
-        Move left = new Move("Left", 11.0, 10.0);
-        Move right = new Move("Right", -10.0, 10.0);
-        Move twist = new Move("Twist", 12.0, 5.0);
+        Move left = new Move("Left", 11.0);
+        Move right = new Move("Right", -10.0);
+        Move twist = new Move("Twist", 12.0);
         movesList.add(left);
         movesList.add(right);
         movesList.add(twist);

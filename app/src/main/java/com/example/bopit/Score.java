@@ -8,26 +8,26 @@ public class Score {
         this.name = name;
         this.score = score;
     }
-    public String toString(){
+
+    public String toString() {
         return name+":"+score;
     }
-    public String dispScore(){
+
+    public String dispScore() {
         return "Player: "+name+"\nScore: "+score;
     }
-    public String getName(){
+
+    public String getName() {
         return this.name;
     }
-    public int getScore(){
+
+    public int getScore() {
         return this.score;
     }
-    public static Score parse(String s){
+
+    public static Score parse(String s) {
         String[] parts = s.split(":");
         return new Score(parts[0],Integer.parseInt(parts[1]));
-    }
-
-    public boolean isHighscore(){
-
-        return false;
     }
 }
 
